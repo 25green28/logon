@@ -21,7 +21,7 @@ A learning project focused on implementing professional authentication flows usi
 
 ## Roadmap
 
-- [ ] Project Setup
+- [x] Project Setup
 - [ ] Session authentication
 - [ ] JWT authentication
 - [ ] Refresh tokens
