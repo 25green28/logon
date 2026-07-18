@@ -5,6 +5,7 @@ import org.mateuszlaski.logon.account.repository.AccountRepository;
 import org.mateuszlaski.logon.auth.dto.RegisterRequest;
 import org.mateuszlaski.logon.auth.dto.RegisterResponse;
 import org.mateuszlaski.logon.common.exception.EmailAlreadyInUseException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,9 +13,11 @@ import java.time.LocalDateTime;
 @Service
 public class AuthService {
     AccountRepository accountRepository;
+    PasswordEncoder passwordEncoder;
 
-    public AuthService(AccountRepository accountRepository) {
+    public AuthService(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public RegisterResponse registerAccount(RegisterRequest registerRequest) {
@@ -25,7 +28,7 @@ public class AuthService {
         Account accountToAdd = new Account();
         accountToAdd.setEmail(registerRequest.getEmail());
         accountToAdd.setUsername(registerRequest.getUsername());
-        accountToAdd.setPassword(registerRequest.getPassword());
+        accountToAdd.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         accountToAdd.setCreatedAt(LocalDateTime.now());
         accountToAdd.setEnabled(true);
 
