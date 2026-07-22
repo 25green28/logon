@@ -1,9 +1,6 @@
 package org.mateuszlaski.logon.common.controller;
 
-import jakarta.servlet.Servlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.coyote.Response;
 import org.mateuszlaski.logon.common.exception.EmailAlreadyInUseException;
 import org.mateuszlaski.logon.common.response.ExceptionResponse;
 import org.springframework.http.HttpStatus;
@@ -19,12 +16,6 @@ import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    private final Servlet servlet;
-
-    public GlobalExceptionHandler(Servlet servlet) {
-        this.servlet = servlet;
-    }
 
     @ExceptionHandler(EmailAlreadyInUseException.class)
     public ResponseEntity<ExceptionResponse> handle(EmailAlreadyInUseException ex, HttpServletRequest servletRequest) {

@@ -1,28 +1,33 @@
 package org.mateuszlaski.logon.security.config;
 
+import org.mateuszlaski.logon.security.entrypoint.RestAuthenticationEntryPoint;
+import org.mateuszlaski.logon.security.handler.RestLogoutSuccessHandler;
 import org.mateuszlaski.logon.security.service.AccountUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 
 @Configuration
 public class SecurityConfig {
     private final AccountUserDetailsService userDetailsService;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestLogoutSuccessHandler restLogoutSuccessHandler;
 
-    public SecurityConfig(AccountUserDetailsService userDetailsService) {
+    public SecurityConfig(
+            AccountUserDetailsService userDetailsService,
+            RestAuthenticationEntryPoint restAuthenticationEntryPoint,
+            RestLogoutSuccessHandler restLogoutSuccessHandler) {
         this.userDetailsService = userDetailsService;
+        this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
+        this.restLogoutSuccessHandler = restLogoutSuccessHandler;
     }
 
     @Bean
@@ -31,6 +36,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
+                )
+                .requestCache(cache ->
+                    cache.requestCache(new NullRequestCache())
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessHandler(restLogoutSuccessHandler)
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
